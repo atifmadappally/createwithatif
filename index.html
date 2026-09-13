@@ -65,13 +65,13 @@
       <p class="eyebrow">Add to the archive</p><h2 id="composer-title">New post</h2>
       <div class="post-type-toggle"><button class="type-choice active" data-composer-type="photo" type="button">Photo</button><button class="type-choice" data-composer-type="video" type="button">YouTube video</button></div>
       <form id="post-form">
-        <label class="field photo-field">Image <input type="file" id="photo-input" accept="image/*"></label>
+        <label class="field photo-field">Image <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp"></label>
         <label class="field video-field hidden">YouTube URL <input type="url" id="youtube-input" placeholder="https://youtube.com/watch?v=..." autocomplete="off"></label>
         <label class="field">Caption <input type="text" id="caption-input" placeholder="What are you thinking about?" required></label>
         <label class="field">Collection <select id="collection-input"><option>Journal</option><option>Watch list</option><option>Work in progress</option></select></label>
         <button class="button button-dark submit-post" type="submit">Publish post <span>↗</span></button>
       </form>
-      <p class="form-note">Posts are saved locally by the createwithatif server and will be here when you return.</p>
+      <p class="form-note">Use JPG, PNG, or WebP images for reliable browser display. Posts are saved online.</p>
     </section>
   </div>
   <script src="supabase-config.js"></script>

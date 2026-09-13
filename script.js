@@ -14,6 +14,7 @@ let composerType = 'photo';
 const supabaseConfig = window.SUPABASE_CONFIG || {};
 const supabaseAvailable = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
 const apiAvailable = window.location.protocol !== 'file:';
+const supportedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 function supabaseHeaders(extra = {}) {
   return { apikey: supabaseConfig.anonKey, Authorization: `Bearer ${supabaseConfig.anonKey}`, ...extra };
@@ -139,9 +140,14 @@ form.addEventListener('submit', async event => {
   event.preventDefault();
   const caption = document.querySelector('#caption-input').value.trim();
   const collection = document.querySelector('#collection-input').value;
+  const selectedPhoto = photoInput.files[0];
+  if (composerType === 'photo' && selectedPhoto && !supportedImageTypes.has(selectedPhoto.type)) {
+    alert('Please choose a JPG, PNG, or WebP image. HEIC images are not supported by most browsers.');
+    return;
+  }
   if (!apiAvailable && !supabaseAvailable) {
     let image = composerType === 'video' ? youtubeThumbnail(youtubeInput.value) : 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85';
-    if (composerType === 'photo' && photoInput.files[0]) image = URL.createObjectURL(photoInput.files[0]);
+    if (composerType === 'photo' && selectedPhoto) image = URL.createObjectURL(selectedPhoto);
     grid.prepend(createPostCard({ type: composerType, image, caption, collection }));
   } else {
     const submitButton = form.querySelector('.submit-post');
@@ -152,15 +158,15 @@ form.addEventListener('submit', async event => {
     formData.append('caption', caption);
     formData.append('collection', collection);
     formData.append('youtubeUrl', youtubeInput.value);
-    if (photoInput.files[0]) formData.append('photo', photoInput.files[0]);
+    if (selectedPhoto) formData.append('photo', selectedPhoto);
     try {
       let response;
       if (supabaseAvailable) {
         let image = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85';
         if (composerType === 'video') {
           image = youtubeThumbnail(youtubeInput.value);
-        } else if (photoInput.files[0]) {
-          const file = photoInput.files[0];
+        } else if (selectedPhoto) {
+          const file = selectedPhoto;
           const filePath = `${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
           const upload = await fetch(`${supabaseConfig.url}/storage/v1/object/media/${filePath}`, { method: 'POST', headers: supabaseHeaders({ 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' }), body: file });
           if (!upload.ok) throw new Error('Could not upload image');
